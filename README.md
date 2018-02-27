@@ -1,6 +1,12 @@
 # Kaamelott soundbot
 This is a Slack command for the [Kaamelott soundboard](https://kaamelott-soundboard.2ec0b4.fr).
 
+## Available commands
+* search (or s)
+* play (or p)
+* random (or r)
+
+## Examples
 Search for a sound:
 ```
 /kaamelott search sais
@@ -29,7 +35,7 @@ Add a link to a random sound in the current channel:
 /kaamelott random
 ```
 
-# Setup on your Slack
+## Setup on your Slack
 Go to your Slack configuration page ```https://yourdomain.slack.com/apps/manage/custom-integrations```. Choose ```Slack commands```, then ```Add Configuration```.
 In the configuration page:
 * For ```Command```, choose the text you want to type use to invoke the command (/kaamelott seems to be a good match).
@@ -38,7 +44,7 @@ In the configuration page:
 * We don't care about the token.
 * For the rest, it's up to you.
 
-# Install your own instance on Google App Engine
+## Install your own instance on Google App Engine
 Checkout project from Github:
 ```
 git clone git@github.com:matco/kaamelott-soundbot.git
@@ -52,7 +58,7 @@ gcloud app deploy app.yaml
 
 You're done!
 
-## Test the command
+### Test the command
 If you would like to test your instance, here are some sample requests that will be sent by Slack:
 ```
 curl -d "text=search%20sais" -H "Content-Type: application/x-www-form-urlencoded" -X POST http://your.instance
