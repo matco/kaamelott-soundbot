@@ -24,6 +24,11 @@ The following text will be posted:
 https://kaamelott-soundboard.2ec0b4.fr/#son/apres_pour_le_detail_je_sais_pas
 ```
 
+Add a link to a random sound in the current channel:
+```
+/kaamelott random
+```
+
 # Setup on your Slack
 Go to your Slack configuration page ```https://yourdomain.slack.com/apps/manage/custom-integrations```. Choose ```Slack commands```, then ```Add Configuration```.
 In the configuration page:

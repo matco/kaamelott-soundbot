@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -146,6 +147,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				} else {
 					fmt.Fprintf(w, "Add sound id")
 				}
+			case "random":
+				id := rand.Intn(len(sounds))
+				file := sounds[id].File
+				message := fmt.Sprintf("%s%s", KaamelottSoundURL, file[0:len(file)-4])
+				var response = SlackMessage{ResponseType: "in_channel", Text: message}
+				w.Header().Set("Content-Type", "application/json")
+				json.NewEncoder(w).Encode(response)
 			default:
 				fmt.Fprintf(w, "Unsupported command %s", command)
 			}
