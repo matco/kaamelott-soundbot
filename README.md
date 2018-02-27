@@ -39,10 +39,10 @@ Add a link to a random sound in the current channel:
 Go to your Slack configuration page ```https://yourdomain.slack.com/apps/manage/custom-integrations```. Choose ```Slack commands```, then ```Add Configuration```.
 In the configuration page:
 * For ```Command```, choose the text you want to type use to invoke the command (/kaamelott seems to be a good match).
-* For ```URL```, enter you own instance of the bot or the existing instance ```https://kaamelott-soundbot.projects.matco.name```.
+* For ```URL```, enter the URL of your own instance or my instance ```https://kaamelott-soundbot.projects.matco.name```.
 * For ```Method``` choose "POST".
 * We don't care about the token.
-* For the rest, it's up to you.
+* For the rest, it's up to you, but I suggest ```search | s <query>, play | p <id>, random | r``` for the usage hint.
 
 ## Install your own instance on Google App Engine
 Checkout project from Github:
