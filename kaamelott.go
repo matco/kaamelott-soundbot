@@ -120,9 +120,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 					}
 					log.Infof(ctx, "Found %d sounds", len(matches))
 					//transform matches into a multiple line string
-					message := ""
-					for i := 0; i < len(matches); i++ {
-						message += fmt.Sprintf("%v: %s\n", matches[i].Index, matches[i].Sound.Title)
+					var message string
+					if len(matches) > 0 {
+						message = ""
+						for i := 0; i < len(matches); i++ {
+							message += fmt.Sprintf("%v: %s\n", matches[i].Index, matches[i].Sound.Title)
+						}
+					} else {
+						message = "No match"
 					}
 					var response = SlackMessage{ResponseType: "ephemeral", Text: message}
 					w.Header().Set("Content-Type", "application/json")
