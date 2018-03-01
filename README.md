@@ -5,6 +5,7 @@ This is a Slack command for the [Kaamelott soundboard](https://kaamelott-soundbo
 * search (or s)
 * play (or p)
 * random (or r)
+* help (or h)
 
 ## Examples
 Search for a sound:

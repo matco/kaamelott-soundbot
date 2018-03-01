@@ -88,6 +88,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			log.Infof(ctx, "Executing command [%s] with arguments %s", command, arguments)
 			//executing command
 			switch command {
+			case "help":
+			case "h":
+				message := "help or h: this message\n"
+				message += "search or s <search>: search for a sound related to <search>\n"
+				message += "play or p <id>: add a link to the sound <id>\n"
+				message += "random or r: add a link to a random sound\n"
+				var response = SlackMessage{ResponseType: "ephemeral", Text: message}
+				w.Header().Set("Content-Type", "application/json")
+				json.NewEncoder(w).Encode(response)
 			case "search":
 			case "s":
 				if len(arguments) == 1 {
