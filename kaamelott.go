@@ -1,17 +1,14 @@
-package kaamelott
+package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
-
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/log"
-	"google.golang.org/appengine/urlfetch"
 )
 
 //retrieve list of sounds from Github instead of Kaamelott soundboard website because their URL is regularly modified
@@ -41,37 +38,44 @@ type SlackMessage struct {
 
 var sounds []Sound
 
-func init() {
+func main() {
 	http.HandleFunc("/", handler)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+		log.Printf("Defaulting to port %s", port)
+	}
+
+	log.Printf("Listening on port %s", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 
-func retrieve_sounds(ctx context.Context) {
-	client := urlfetch.Client(ctx)
+func retrieve_sounds() {
 	//retrieve current sounds
-	resp, err := client.Get(KaamelottSoundsURL)
+	resp, err := http.Get(KaamelottSoundsURL)
 	if err == nil {
 		json.NewDecoder(resp.Body).Decode(&sounds)
-		log.Infof(ctx, "Found %d Kaamelott sounds", len(sounds))
+		log.Printf("Found %d Kaamelott sounds", len(sounds))
 
 		//build words list for each sounds to search efficiently
 		for i := 0; i < len(sounds); i++ {
 			sound := sounds[i]
 			sound.Words = strings.Split(sound.Title, " ")
 		}
-		log.Infof(ctx, "Retrieve all words related to sound")
+		log.Printf("Retrieve all words related to sound")
 	} else {
-		log.Errorf(ctx, err.Error())
+		log.Printf(err.Error())
 	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		ctx := appengine.NewContext(r)
 		//build sounds cache if required
 		//this must be done in the context of a request, even if the cache will then be shared by all following requests
 		//use the first request to build this cache
 		if len(sounds) == 0 {
-			retrieve_sounds(ctx)
+			retrieve_sounds()
 		}
 		r.ParseForm()
 		//retrieve query stored in the "text" variable
@@ -85,7 +89,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			command := query[0]
 			//extract command arguments
 			arguments := query[1:]
-			log.Infof(ctx, "Executing command [%s] with arguments %s", command, arguments)
+			log.Printf("Executing command [%s] with arguments %s", command, arguments)
 			//executing command
 			switch command {
 			case "help":
@@ -101,7 +105,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			case "s":
 				if len(arguments) == 1 {
 					search := arguments[0]
-					log.Debugf(ctx, "Searching sound with search [%s]", search)
+					log.Printf("Searching sound with search [%s]", search)
 					var matches []Match
 					//look for exact match
 					for i := 0; i < len(sounds) && len(matches) < 5; i++ {
@@ -127,7 +131,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 							matches = append(matches, Match{Index: i, Sound: &sound})
 						}
 					}
-					log.Infof(ctx, "Found %d sounds", len(matches))
+					log.Printf("Found %d sounds", len(matches))
 					//transform matches into a multiple line string
 					var message string
 					if len(matches) > 0 {
@@ -151,7 +155,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				if len(arguments) > 0 {
 					id, err := strconv.Atoi(arguments[0])
 					if err == nil {
-						log.Infof(ctx, "Adding sound with id [%v]", id)
+						log.Printf("Adding sound with id [%v]", id)
 						file := sounds[id].File
 						message := fmt.Sprintf("%s%s", KaamelottSoundURL, file[0:len(file)-4])
 						var response = SlackMessage{ResponseType: "in_channel", Text: message}
