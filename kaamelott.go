@@ -12,13 +12,13 @@ import (
 )
 
 //retrieve list of sounds from Github instead of Kaamelott soundboard website because their URL is regularly modified
-//const KaamelottSoundsURL = "https://kaamelott-soundboard.2ec0b4.fr/sounds/sounds.a7b9de88.json"
-const KaamelottSoundsURL = "https://raw.githubusercontent.com/2ec0b4/kaamelott-soundboard/master/sounds/sounds.json"
+//const kaamelottSoundsURL = "https://kaamelott-soundboard.2ec0b4.fr/sounds/sounds.a7b9de88.json"
+const kaamelottSoundsURL = "https://raw.githubusercontent.com/2ec0b4/kaamelott-soundboard/master/sounds/sounds.json"
 
 //baselink of the sound on Kaamelott soundboard website
-const KaamelottSoundURL = "https://kaamelott-soundboard.2ec0b4.fr/#son/"
+const kaamelottSoundURL = "https://kaamelott-soundboard.2ec0b4.fr/#son/"
 
-type Sound struct {
+type sound struct {
 	Character string `json:"character"`
 	Episode   string `json:"episode"`
 	Title     string `json:"title"`
@@ -26,17 +26,17 @@ type Sound struct {
 	Words     []string
 }
 
-type Match struct {
+type match struct {
 	Index int
-	Sound *Sound
+	Sound *sound
 }
 
-type SlackMessage struct {
+type slackMessage struct {
 	ResponseType string `json:"response_type"`
 	Text         string `json:"text"`
 }
 
-var sounds []Sound
+var sounds []sound
 
 func main() {
 	http.HandleFunc("/", handler)
@@ -51,9 +51,9 @@ func main() {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 
-func retrieve_sounds() {
+func retrieveSounds() {
 	//retrieve current sounds
-	resp, err := http.Get(KaamelottSoundsURL)
+	resp, err := http.Get(kaamelottSoundsURL)
 	if err == nil {
 		json.NewDecoder(resp.Body).Decode(&sounds)
 		log.Printf("Found %d Kaamelott sounds", len(sounds))
@@ -75,7 +75,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		//this must be done in the context of a request, even if the cache will then be shared by all following requests
 		//use the first request to build this cache
 		if len(sounds) == 0 {
-			retrieve_sounds()
+			retrieveSounds()
 		}
 		r.ParseForm()
 		//retrieve query stored in the "text" variable
@@ -98,7 +98,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				message += "search or s <search>: search for a sound related to <search>\n"
 				message += "play or p <id>: add a link to the sound <id>\n"
 				message += "random or r: add a link to a random sound\n"
-				var response = SlackMessage{ResponseType: "ephemeral", Text: message}
+				var response = slackMessage{ResponseType: "ephemeral", Text: message}
 				w.Header().Set("Content-Type", "application/json")
 				json.NewEncoder(w).Encode(response)
 			case "search":
@@ -106,13 +106,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				if len(arguments) == 1 {
 					search := arguments[0]
 					log.Printf("Searching sound with search [%s]", search)
-					var matches []Match
+					var matches []match
 					//look for exact match
 					for i := 0; i < len(sounds) && len(matches) < 5; i++ {
 						sound := sounds[i]
 						for j := 0; j < len(sound.Words); j++ {
 							if search == sound.Words[j] {
-								matches = append(matches, Match{Index: i, Sound: &sound})
+								matches = append(matches, match{Index: i, Sound: &sound})
 							}
 						}
 					}
@@ -128,7 +128,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 							}
 						}
 						if !selected && strings.Contains(sound.Title, search) {
-							matches = append(matches, Match{Index: i, Sound: &sound})
+							matches = append(matches, match{Index: i, Sound: &sound})
 						}
 					}
 					log.Printf("Found %d sounds", len(matches))
@@ -142,7 +142,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 					} else {
 						message = "No match"
 					}
-					var response = SlackMessage{ResponseType: "ephemeral", Text: message}
+					var response = slackMessage{ResponseType: "ephemeral", Text: message}
 					w.Header().Set("Content-Type", "application/json")
 					json.NewEncoder(w).Encode(response)
 				} else if len(arguments) > 1 {
@@ -157,8 +157,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 					if err == nil {
 						log.Printf("Adding sound with id [%v]", id)
 						file := sounds[id].File
-						message := fmt.Sprintf("%s%s", KaamelottSoundURL, file[0:len(file)-4])
-						var response = SlackMessage{ResponseType: "in_channel", Text: message}
+						message := fmt.Sprintf("%s%s", kaamelottSoundURL, file[0:len(file)-4])
+						var response = slackMessage{ResponseType: "in_channel", Text: message}
 						w.Header().Set("Content-Type", "application/json")
 						json.NewEncoder(w).Encode(response)
 					} else {
@@ -171,8 +171,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			case "r":
 				id := rand.Intn(len(sounds))
 				file := sounds[id].File
-				message := fmt.Sprintf("%s%s", KaamelottSoundURL, file[0:len(file)-4])
-				var response = SlackMessage{ResponseType: "in_channel", Text: message}
+				message := fmt.Sprintf("%s%s", kaamelottSoundURL, file[0:len(file)-4])
+				var response = slackMessage{ResponseType: "in_channel", Text: message}
 				w.Header().Set("Content-Type", "application/json")
 				json.NewEncoder(w).Encode(response)
 			default:
