@@ -84,6 +84,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		if text != "" {
 			query = strings.Split(text, " ")
 		}
+		//if the is no command or command is help, help will be displayed
+		var displayHelp = false
 		if len(query) > 0 {
 			//extract command with is first word of query
 			command := query[0]
@@ -94,13 +96,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			switch command {
 			case "help":
 			case "h":
-				message := "help or h: this message\n"
-				message += "search or s <search>: search for a sound related to <search>\n"
-				message += "play or p <id>: add a link to the sound <id>\n"
-				message += "random or r: add a link to a random sound\n"
-				var response = slackMessage{ResponseType: "ephemeral", Text: message}
-				w.Header().Set("Content-Type", "application/json")
-				json.NewEncoder(w).Encode(response)
+				displayHelp = true
 			case "search":
 			case "s":
 				if len(arguments) == 1 {
@@ -179,7 +175,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, "Unsupported command %s", command)
 			}
 		} else {
-			fmt.Fprint(w, "Empty command")
+			displayHelp = true
+		}
+		if displayHelp == true {
+			message := "Commands help\n"
+			message += "help or h: this message\n"
+			message += "search or s <search>: search for a sound related to <search>\n"
+			message += "play or p <id>: add a link to the sound <id>\n"
+			message += "random or r: add a link to a random sound\n"
+			var response = slackMessage{ResponseType: "ephemeral", Text: message}
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(response)
 		}
 	} else {
 		fmt.Fprint(w, "Nothing here")
