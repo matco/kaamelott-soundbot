@@ -9,6 +9,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/nlopes/slack"
 )
 
 //retrieve list of sounds from Github instead of Kaamelott soundboard website because their URL is regularly modified
@@ -78,6 +80,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			retrieveSounds()
 		}
 		r.ParseForm()
+		//retrieve interactive action
+		messageType := r.Form.Get("type")
+		if messageType == "interactive_message" {
+
+		}
 		//retrieve query stored in the "text" variable
 		text := r.Form.Get("text")
 		var query []string
@@ -99,6 +106,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				displayHelp = true
 			case "search":
 			case "s":
+				log.Printf(strconv.Itoa(len(arguments)))
 				if len(arguments) == 1 {
 					search := arguments[0]
 					log.Printf("Searching sound with search [%s]", search)
@@ -129,16 +137,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 					}
 					log.Printf("Found %d sounds", len(matches))
 					//transform matches into a multiple line string
-					var message string
+					var response interface{}
 					if len(matches) > 0 {
-						message = ""
+						var sections []slack.Block
 						for i := 0; i < len(matches); i++ {
-							message += fmt.Sprintf("%v: %s\n", matches[i].Index, matches[i].Sound.Title)
+							buttonText := slack.NewTextBlockObject("plain_text", "Play", false, false)
+							button := slack.NewButtonBlockElement("play", strconv.Itoa(i), buttonText)
+							accessory := slack.NewAccessory(button)
+							text := slack.NewTextBlockObject("mrkdwn", matches[i].Sound.Title, false, false)
+							section := slack.NewSectionBlock(text, nil, accessory)
+							sections = append(sections, *section)
 						}
+						response = slack.MsgOptionBlocks(sections...)
 					} else {
-						message = "No match"
+						response = slackMessage{ResponseType: "ephemeral", Text: "No match"}
 					}
-					var response = slackMessage{ResponseType: "ephemeral", Text: message}
 					w.Header().Set("Content-Type", "application/json")
 					json.NewEncoder(w).Encode(response)
 				} else if len(arguments) > 1 {
