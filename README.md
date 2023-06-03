@@ -45,6 +45,12 @@ In the configuration page:
 * We don't care about the token.
 * For the rest, it's up to you, but I suggest `search | s <query>, play | p <id>, random | r` for the usage hint.
 
+## Run locally
+Just execute:
+```
+go run .
+```
+
 ## Install your own instance on Google App Engine
 Checkout project from GitHub:
 ```
