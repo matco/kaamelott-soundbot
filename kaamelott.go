@@ -173,7 +173,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			displayHelp = true
 		}
-		if displayHelp == true {
+		if displayHelp {
 			message := "Commands help\n"
 			message += "help or h: this message\n"
 			message += "search or s <search>: search for a sound related to <search>\n"
