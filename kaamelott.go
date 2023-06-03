@@ -94,11 +94,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Executing command [%s] with arguments %s", command, arguments)
 			//executing command
 			switch command {
-			case "help":
-			case "h":
+			case "help", "h":
 				displayHelp = true
-			case "search":
-			case "s":
+			case "search", "s":
 				if len(arguments) == 1 {
 					search := arguments[0]
 					log.Printf("Searching sound with search [%s]", search)
@@ -146,8 +144,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				} else {
 					fmt.Fprintf(w, "Add search parameter")
 				}
-			case "play":
-			case "p":
+			case "play", "p":
 				if len(arguments) > 0 {
 					id, err := strconv.Atoi(arguments[0])
 					if err == nil {
@@ -163,8 +160,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				} else {
 					fmt.Fprintf(w, "Add sound id")
 				}
-			case "random":
-			case "r":
+			case "random", "r":
 				id := rand.Intn(len(sounds))
 				file := sounds[id].File
 				message := fmt.Sprintf("%s%s", kaamelottSoundURL, file[0:len(file)-4])
