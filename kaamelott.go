@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //retrieve list of sounds from GitHub instead of Kaamelott soundboard website because their URL is regularly modified
@@ -37,6 +38,9 @@ type slackMessage struct {
 }
 
 var sounds []sound
+
+var seed = rand.NewSource(time.Now().UnixNano())
+var randomSource = rand.New(seed)
 
 func main() {
 	http.HandleFunc("/", handler)
@@ -161,7 +165,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 					fmt.Fprintf(w, "Add sound id")
 				}
 			case "random", "r":
-				id := rand.Intn(len(sounds))
+				id := randomSource.Intn(len(sounds))
 				file := sounds[id].File
 				message := fmt.Sprintf("%s%s", kaamelottSoundURL, file[0:len(file)-4])
 				var response = slackMessage{ResponseType: "in_channel", Text: message}
