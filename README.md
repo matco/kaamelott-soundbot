@@ -68,6 +68,6 @@ You're done!
 ### Test the command
 If you would like to test your instance, here are some sample requests that will be sent by Slack:
 ```
-curl -d "text=search%20sais" -H "Content-Type: application/x-www-form-urlencoded" -X POST http://your.instance
-curl -d "text=play%204" -H "Content-Type: application/x-www-form-urlencoded" -X POST http://your.instance
+curl -d "text=search%20sais" -H "Content-Type: application/x-www-form-urlencoded" http://your.instance
+curl -d "text=play%204" -H "Content-Type: application/x-www-form-urlencoded" http://your.instance
 ```
