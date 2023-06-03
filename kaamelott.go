@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-//retrieve list of sounds from Github instead of Kaamelott soundboard website because their URL is regularly modified
+//retrieve list of sounds from GitHub instead of Kaamelott soundboard website because their URL is regularly modified
 //const kaamelottSoundsURL = "https://kaamelott-soundboard.2ec0b4.fr/sounds/sounds.a7b9de88.json"
 const kaamelottSoundsURL = "https://raw.githubusercontent.com/2ec0b4/kaamelott-soundboard/master/sounds/sounds.json"
 
@@ -58,12 +58,12 @@ func retrieveSounds() {
 		json.NewDecoder(resp.Body).Decode(&sounds)
 		log.Printf("Found %d Kaamelott sounds", len(sounds))
 
-		//build words list for each sounds to search efficiently
+		//build a list of words for each sounds to search efficiently
 		for i := 0; i < len(sounds); i++ {
 			sound := sounds[i]
 			sound.Words = strings.Split(sound.Title, " ")
 		}
-		log.Printf("Retrieve all words related to sound")
+		log.Printf("Sounds processed")
 	} else {
 		log.Printf(err.Error())
 	}
@@ -78,13 +78,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			retrieveSounds()
 		}
 		r.ParseForm()
-		//retrieve query stored in the "text" variable
+		//retrieve the query stored in the "text" variable
 		text := r.Form.Get("text")
 		var query []string
 		if text != "" {
 			query = strings.Split(text, " ")
 		}
-		//if the is no command or command is help, help will be displayed
+		//if there is no command or command is help, help will be displayed
 		var displayHelp = false
 		if len(query) > 0 {
 			//extract command with is first word of query
