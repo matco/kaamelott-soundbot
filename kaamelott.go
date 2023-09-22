@@ -69,7 +69,7 @@ func retrieveSounds() {
 		}
 		log.Printf("Sounds processed")
 	} else {
-		log.Printf(err.Error())
+		log.Print(err.Error())
 	}
 }
 
